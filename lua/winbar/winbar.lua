@@ -26,6 +26,7 @@ local winbar_file = function()
     local file_path = vim.fn.expand('%:~:.:h')
     local filename = vim.fn.expand('%:t')
     local file_type = vim.fn.expand('%:e')
+    local filetype = vim.bo.filetype
     local value = ''
     local file_icon = ''
 
@@ -51,6 +52,7 @@ local winbar_file = function()
 
         file_icon = '%#' .. hl_winbar_file_icon .. '#' .. file_icon .. ' %*'
 
+        -- value = ' /' .. filetype .. '/ '
         value = ' '
         if opts.show_file_path then
             local file_path_list = {}
@@ -58,12 +60,21 @@ local winbar_file = function()
                 table.insert(file_path_list, w)
             end)
 
-            for i = 1, #file_path_list do
-                value = value .. '%#' .. hl_winbar_path .. '#' .. file_path_list[i] .. ' ' .. opts.icons.seperator .. ' %*'
+            -- Are we inside of entry field for Telescope?
+            if file_path_list[1] == 'term:' and filetype == "" then
+              -- skippedy skip
+              value = ''
+            else
+              for i = 1, #file_path_list do
+                  value = value .. '%#' .. hl_winbar_path .. '#' .. file_path_list[i] .. ' ' .. opts.icons.seperator .. ' %*'
+              end
             end
         end
-        value = value .. file_icon
-        value = value .. '%#' .. hl_winbar_file .. '#' .. filename .. '%*'
+        -- Is there anything to report?
+        if value ~= '' then
+          value = value .. file_icon
+          value = value .. '%#' .. hl_winbar_file .. '#' .. filename .. '%*'
+        end
     end
 
     return value
