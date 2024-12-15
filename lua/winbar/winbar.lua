@@ -27,12 +27,16 @@ local winbar_file = function()
     local filename = vim.fn.expand('%:t')
     local file_type = vim.fn.expand('%:e')
     local filetype = vim.bo.filetype
+    local full_path = vim.api.nvim_buf_get_name(0)
     local value = ''
     local file_icon = ''
 
     file_path = file_path:gsub('^%.', '')
     file_path = file_path:gsub('^%/', '')
 
+    if not vim.fn.filereadable(full_path) then
+      return ''
+    end
     if not f.isempty(filename) then
         local default = false
 
