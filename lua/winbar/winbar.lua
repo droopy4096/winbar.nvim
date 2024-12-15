@@ -84,6 +84,13 @@ local winbar_gps = function()
 end
 
 local excludes = function()
+    -- disable for floating windows
+    -- relative == 'editor' likely means it's a dialog
+    local wc = vim.api.nvim_win_get_config(0)
+    if wc.relative == 'editor' then
+      return true
+    end
+
     local full_path = vim.api.nvim_buf_get_name(0)
     -- If this file is not real - no point showing it's title
     if not vim.fn.filereadable(full_path) then
