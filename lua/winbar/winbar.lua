@@ -26,18 +26,12 @@ local winbar_file = function()
     local file_path = vim.fn.expand('%:~:.:h')
     local filename = vim.fn.expand('%:t')
     local file_type = vim.fn.expand('%:e')
-    local filetype = vim.bo.filetype
-    local full_path = vim.api.nvim_buf_get_name(0)
     local value = ''
     local file_icon = ''
 
     file_path = file_path:gsub('^%.', '')
     file_path = file_path:gsub('^%/', '')
 
-    -- If this file is not real - no point showing it's title
-    if not vim.fn.filereadable(full_path) then
-      return ''
-    end
     if not f.isempty(filename) then
         local default = false
 
@@ -57,7 +51,6 @@ local winbar_file = function()
 
         file_icon = '%#' .. hl_winbar_file_icon .. '#' .. file_icon .. ' %*'
 
-        -- value = ' /' .. filetype .. '/ '
         value = ' '
         if opts.show_file_path then
             local file_path_list = {}
@@ -65,21 +58,12 @@ local winbar_file = function()
                 table.insert(file_path_list, w)
             end)
 
-            -- Are we inside of entry field for Telescope?
-            if file_path_list[1] == 'term:' and filetype == "" then
-              -- skippedy skip
-              value = ''
-            else
-              for i = 1, #file_path_list do
-                  value = value .. '%#' .. hl_winbar_path .. '#' .. file_path_list[i] .. ' ' .. opts.icons.seperator .. ' %*'
-              end
+            for i = 1, #file_path_list do
+                value = value .. '%#' .. hl_winbar_path .. '#' .. file_path_list[i] .. ' ' .. opts.icons.seperator .. ' %*'
             end
         end
-        -- Is there anything to report?
-        if value ~= '' then
-          value = value .. file_icon
-          value = value .. '%#' .. hl_winbar_file .. '#' .. filename .. '%*'
-        end
+        value = value .. file_icon
+        value = value .. '%#' .. hl_winbar_file .. '#' .. filename .. '%*'
     end
 
     return value
@@ -100,6 +84,23 @@ local winbar_gps = function()
 end
 
 local excludes = function()
+    local full_path = vim.api.nvim_buf_get_name(0)
+    -- If this file is not real - no point showing it's title
+    if not vim.fn.filereadable(full_path) then
+        vim.opt_local.winbar = nil
+        return true
+    end
+
+    local file_path_list = {}
+    local _ = string.gsub(full_path, '[^/]+', function(w)
+        table.insert(file_path_list, w)
+    end)
+    if file_path_list[1] == 'term:' and vim.bo.filetype == "" then
+        -- skippedy skip
+        vim.opt_local.winbar = nil
+        return true
+    end
+
     if vim.tbl_contains(opts.exclude_filetype, vim.bo.filetype) then
         vim.opt_local.winbar = nil
         return true
