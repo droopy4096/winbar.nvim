@@ -34,6 +34,7 @@ local winbar_file = function()
     file_path = file_path:gsub('^%.', '')
     file_path = file_path:gsub('^%/', '')
 
+    -- If this file is not real - no point showing it's title
     if not vim.fn.filereadable(full_path) then
       return ''
     end
