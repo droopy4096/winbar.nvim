@@ -91,16 +91,17 @@ local excludes = function()
         return true
     end
 
+    -- if filename starts with "term:" and no filetype - skip it
     local file_path_list = {}
     local _ = string.gsub(full_path, '[^/]+', function(w)
         table.insert(file_path_list, w)
     end)
     if file_path_list[1] == 'term:' and vim.bo.filetype == "" then
-        -- skippedy skip
         vim.opt_local.winbar = nil
         return true
     end
 
+    -- if filetype got blacklisted
     if vim.tbl_contains(opts.exclude_filetype, vim.bo.filetype) then
         vim.opt_local.winbar = nil
         return true
